@@ -18,10 +18,7 @@ import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
-import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
-import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -36,8 +33,10 @@ import androidx.compose.ui.unit.sp
 import androidx.compose.ui.viewinterop.AndroidView
 import androidx.core.content.ContextCompat
 import com.tonyxlh.mrzscanner.ui.theme.MRZScannerTheme
+import java.lang.StringBuilder
 
 class MainActivity : ComponentActivity() {
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContent {
@@ -79,12 +78,30 @@ class MainActivity : ComponentActivity() {
                                     .requireLensFacing(CameraSelector.LENS_FACING_BACK)
                                     .build()
                                 preview.setSurfaceProvider(previewView.surfaceProvider)
-
+                                val imageAnalysis = ImageAnalysis.Builder()
+                                    .setBackpressureStrategy(STRATEGY_KEEP_ONLY_LATEST)
+                                    .build()
+                                imageAnalysis.setAnalyzer(
+                                    ContextCompat.getMainExecutor(context),
+                                    MRZAnalyzer({results ->
+                                        run {
+                                            val sb = StringBuilder()
+                                            for (result in results) {
+                                                for (lineResult in result.lineResults) {
+                                                    sb.append(lineResult.text)
+                                                    sb.append("\n")
+                                                }
+                                            }
+                                            code = sb.toString()
+                                        }
+                                    },context)
+                                )
                                 try {
                                     cameraProviderFuture.get().bindToLifecycle(
                                         lifecycleOwner,
                                         selector,
-                                        preview
+                                        preview,
+                                        imageAnalysis
                                     )
                                 } catch (e: Exception) {
                                     e.printStackTrace()
@@ -94,7 +111,7 @@ class MainActivity : ComponentActivity() {
                             modifier = Modifier.weight(1f)
                         )
                         Text(
-                            text = "code",
+                            text = code,
                             fontSize = 20.sp,
                             fontWeight = FontWeight.Bold,
                             modifier = Modifier
