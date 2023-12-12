@@ -27,8 +27,12 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalLifecycleOwner
+import androidx.compose.ui.text.PlatformTextStyle
+import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.style.LineHeightStyle
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.em
 import androidx.compose.ui.unit.sp
 import androidx.compose.ui.viewinterop.AndroidView
 import androidx.core.content.ContextCompat
@@ -86,10 +90,13 @@ class MainActivity : ComponentActivity() {
                                     MRZAnalyzer({results ->
                                         run {
                                             val sb = StringBuilder()
-                                            for (result in results) {
-                                                for (lineResult in result.lineResults) {
-                                                    sb.append(lineResult.text)
-                                                    sb.append("\n")
+                                            if (results.size == 1) {
+                                                val result = results.get(0)
+                                                if (result.lineResults.size>=2) {
+                                                    for (lineResult in result.lineResults) {
+                                                        sb.append(lineResult.text)
+                                                        sb.append("\n")
+                                                    }
                                                 }
                                             }
                                             code = sb.toString()
@@ -108,7 +115,7 @@ class MainActivity : ComponentActivity() {
                                 }
                                 previewView
                             },
-                            modifier = Modifier.weight(1f)
+                            modifier = Modifier.weight(1f).padding(bottom = 25.dp)
                         )
                         Text(
                             text = code,
