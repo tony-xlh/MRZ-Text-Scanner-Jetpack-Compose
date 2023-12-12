@@ -1,0 +1,1 @@
+# MRZ-Text-Scanner-Jetpack-Compose
