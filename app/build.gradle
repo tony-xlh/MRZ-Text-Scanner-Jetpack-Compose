@@ -71,5 +71,5 @@ dependencies {
     implementation "androidx.camera:camera-lifecycle:${camerax_version}"
     implementation "androidx.camera:camera-view:${camerax_version}"
 
-    implementation 'com.dynamsoft:mrzscannerbundle:3.4.1300'
+    implementation 'com.dynamsoft:mrzscannerbundle:3.6.2000'
 }
